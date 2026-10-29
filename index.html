@@ -61,34 +61,34 @@
             </div>
         </section>
 
-        <!-- 右側區塊：產生的程式碼與書籤操作 -->
-        <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col">
-            <div class="mb-4 pb-2 border-b border-slate-100 flex justify-between items-center">
-                <h2 class="font-bold text-lg text-slate-700">3. 產生與安裝書籤捷徑</h2>
-                <span class="text-xs text-emerald-600 font-medium bg-emerald-50 px-2 py-0.5 rounded">即時同步</span>
-            </div>
-            <p class="text-xs text-slate-500 mb-3">複製下方程式碼，或將按鈕直接拖曳至瀏覽器書籤列：</p>
+<!-- 右側區塊：產生的程式碼與一鍵安裝 -->
+<section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col">
+    <div class="mb-4 pb-2 border-b border-slate-100 flex justify-between items-center">
+        <h2 class="font-bold text-lg text-slate-700">3. 產生與一鍵收藏</h2>
+        <span class="text-xs text-emerald-600 font-medium bg-emerald-50 px-2 py-0.5 rounded">即時同步</span>
+    </div>
+    <p class="text-xs text-slate-500 mb-3">點擊下方按鈕，將自動複製程式碼並教你快速加入我的最愛：</p>
 
-            <!-- 拖曳按鈕區 -->
-            <div class="mb-4 p-4 bg-slate-50 border border-dashed border-slate-300 rounded-lg text-center">
-                <p class="text-xs text-slate-500 mb-2">👇 將此按鈕拖曳至瀏覽器書籤列（Bookmarks Bar）</p>
-                <a id="bookmarklet-btn" href="#" onclick="return false;" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg shadow transition text-sm cursor-grab active:cursor-grabbing">
-                    📌 半形轉全形小幫手
-                </a>
-            </div>
+    <!-- 一鍵安裝引導按鈕 -->
+    <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg text-center">
+        <button onclick="smartAddBookmark()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-3 rounded-lg shadow transition text-sm flex items-center justify-center space-x-2 cursor-pointer">
+            <span>✨</span>
+            <span>一鍵複製並顯示新增教學</span>
+        </button>
+        <p class="text-[11px] text-blue-600 mt-2">點擊後會自動複製程式碼，並彈出簡單步驟指引</p>
+    </div>
 
-            <!-- 程式碼輸出框 -->
-            <div class="flex flex-col flex-grow">
-                <div class="flex justify-between items-center mb-1">
-                    <label for="output-code" class="text-xs font-semibold text-slate-600">JavaScript 原始碼：</label>
-                    <button onclick="copyCode()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded transition font-medium">
-                        📋 複製程式碼
-                    </button>
-                </div>
-                <textarea id="output-code" readonly class="w-full h-40 font-mono text-xs p-3 bg-slate-900 text-emerald-400 rounded-lg resize-none focus:outline-none" placeholder="產生的程式碼將顯示在此..."></textarea>
-            </div>
-        </section>
-
+    <!-- 程式碼輸出框 -->
+    <div class="flex flex-col flex-grow">
+        <div class="flex justify-between items-center mb-1">
+            <label for="output-code" class="text-xs font-semibold text-slate-600">JavaScript 原始碼：</label>
+            <button onclick="copyCode()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded transition font-medium">
+                📋 複製程式碼
+            </button>
+        </div>
+        <textarea id="output-code" readonly class="w-full h-40 font-mono text-xs p-3 bg-slate-900 text-emerald-400 rounded-lg resize-none focus:outline-none" placeholder="產生的程式碼將顯示在此..."></textarea>
+    </div>
+</section>
     </main>
 
     <!-- 頁尾 -->
@@ -261,6 +261,20 @@
 
         // 頁面載入時初始化
         window.onload = initUI;
+
+        function smartAddBookmark() {
+    const textarea = document.getElementById('output-code');
+    textarea.select();
+    document.execCommand('copy');
+
+    // 彈出貼心指引說明
+    alert(
+        "✅ 程式碼已成功複製到剪貼簿！\n\n" +
+        "【只需 2 步即可完成我的最愛設定】：\n" +
+        "1. 請在鍵盤按下快捷鍵 【Ctrl + D】（Mac 請按 Cmd + D）將本頁加入我的最愛。\n" +
+        "2. 將該筆最愛的網址（URL）編輯修改，貼上剛剛複製的程式碼並儲存就完成了！"
+    );
+}
     </script>
 </body>
 </html>
