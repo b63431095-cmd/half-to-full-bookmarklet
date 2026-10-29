@@ -9,86 +9,150 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
-    <!-- 頂部標題 -->
+    <!-- 頂部標題與頁籤切換 -->
     <header class="bg-blue-900 text-white shadow-md py-4 px-6 mb-6">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold tracking-wide">⚙️ 半形轉全形書籤捷徑（Bookmarklet）自訂產生器</h1>
-            <span class="text-xs bg-blue-800 px-3 py-1 rounded-full text-blue-200">純前端靜態網頁・安全可靠</span>
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-xl font-bold tracking-wide flex items-center gap-2">
+                    <span>⚙️</span> 半形轉全形書籤捷徑（Bookmarklet）工具
+                </h1>
+                <p class="text-xs text-blue-200 mt-1">公文與網頁文字快速排版排版助手・純前端安全運作</p>
+            </div>
+            
+            <!-- 模式切換按鈕區 -->
+            <div class="flex bg-blue-950 p-1 rounded-xl border border-blue-800/80">
+                <button id="tab-btn-simple" onclick="switchTab('simple')" class="px-4 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 bg-blue-600 text-white shadow">
+                    <span>🚀 快速體驗與收藏</span>
+                </button>
+                <button id="tab-btn-advanced" onclick="switchTab('advanced')" class="px-4 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 text-blue-300 hover:text-white">
+                    <span>🛠️ 進階設定 (符號與自訂)</span>
+                </button>
+            </div>
         </div>
     </header>
 
-    <!-- 主要內容區塊 (三欄式佈局) -->
-    <main class="max-w-7xl mx-auto px-4 flex-grow grid grid-cols-1 lg:grid-cols-3 gap-6 w-full mb-12">
-        
-        <!-- 左側區塊：半形符號選取 -->
-        <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col">
-            <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
-                <h2 class="font-bold text-lg text-slate-700">1. 選擇要轉換的半形符號</h2>
-                <div class="space-x-2 text-xs">
-                    <button onclick="toggleAll(true)" class="text-blue-600 hover:underline">全選</button>
-                    <span class="text-slate-300">|</span>
-                    <button onclick="toggleAll(false)" class="text-slate-600 hover:underline">全不選</button>
+    <main class="max-w-6xl mx-auto px-4 flex-grow w-full mb-12">
+
+        <!-- ================= 模式一：簡潔體驗模式 (預設顯示) ================= -->
+        <div id="mode-simple" class="space-y-6">
+            
+            <!-- 區塊 1: 互動測試區 -->
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="font-bold text-base text-slate-800 flex items-center space-x-2">
+                        <span class="text-blue-600">Step 1.</span>
+                        <span>先在這裡試玩轉換效果</span>
+                    </h2>
+                    <button onclick="resetDemoText()" class="text-xs text-slate-400 hover:text-slate-600 underline">重設測試文字</button>
                 </div>
-            </div>
-            <p class="text-xs text-slate-500 mb-3">勾選你想在文字選取時自動轉換的字元或符號：</p>
-            
-            <div id="symbol-list" class="space-y-2 overflow-y-auto max-h-[520px] pr-2 flex-grow">
-                <!-- 動態載入符號項目 -->
-            </div>
-        </section>
+                <p class="text-xs text-slate-500 mb-3">下方文字框內包含許多半形符號，點擊按鈕親自感受轉換效果：</p>
+                
+                <textarea id="demo-textarea" rows="4" class="w-full p-3 font-mono text-sm bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition resize-none">主旨:請貴公司於115年10月29日前(含當日),依規定辦理說明事項...【車號:ABC-1234】;備註:如有疑問,請來電洽詢!</textarea>
 
-        <!-- 中間區塊：對應全形設定與進階選項 -->
-        <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col">
-            <div class="mb-4 pb-2 border-b border-slate-100">
-                <h2 class="font-bold text-lg text-slate-700">2. 設定對應全形與規則</h2>
-            </div>
-            <p class="text-xs text-slate-500 mb-3">調整右側對應產生的全形文字或目標字元：</p>
-            
-            <div id="mapping-list" class="space-y-3 overflow-y-auto max-h-[440px] pr-2 flex-grow mb-4">
-                <!-- 動態載入對應輸入框 -->
-            </div>
-
-            <!-- 進階規則 -->
-            <div class="border-t border-slate-100 pt-3 space-y-2">
-                <label class="flex items-center space-x-2 text-sm cursor-pointer">
-                    <input type="checkbox" id="remove-space" checked class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
-                    <span class="text-slate-700">自動略過並刪除半形空白 (` `)</span>
-                </label>
-                <label class="flex items-center space-x-2 text-sm cursor-pointer">
-                    <input type="checkbox" id="convert-ellipsis" checked class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
-                    <span class="text-slate-700">自動將連續三點 (`...`) 轉為中文省略號 (`…`)</span>
-                </label>
-            </div>
-        </section>
-
-        <!-- 右側區塊：產生的程式碼與一鍵安裝 -->
-        <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col">
-            <div class="mb-4 pb-2 border-b border-slate-100 flex justify-between items-center">
-                <h2 class="font-bold text-lg text-slate-700">3. 產生與一鍵收藏</h2>
-                <span class="text-xs text-emerald-600 font-medium bg-emerald-50 px-2 py-0.5 rounded">即時同步</span>
-            </div>
-            <p class="text-xs text-slate-500 mb-3">點擊下方按鈕，將自動複製程式碼並顯示詳細設定步驟：</p>
-
-            <!-- 一鍵安裝引導按鈕 -->
-            <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg text-center">
-                <button onclick="smartAddBookmark()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-3 rounded-lg shadow transition text-sm flex items-center justify-center space-x-2 cursor-pointer">
-                    <span>✨</span>
-                    <span>一鍵複製並顯示詳細步驟</span>
-                </button>
-                <p class="text-[11px] text-blue-600 mt-2">點擊後自動複製程式碼，左上角將跳出操作指引</p>
-            </div>
-
-            <!-- 程式碼輸出框 -->
-            <div class="flex flex-col flex-grow">
-                <div class="flex justify-between items-center mb-1">
-                    <label for="output-code" class="text-xs font-semibold text-slate-600">JavaScript 原始碼：</label>
-                    <button onclick="copyCode()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded transition font-medium">
-                        📋 複製程式碼
+                <div class="mt-3 flex justify-end">
+                    <button onclick="testConvertDemo()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2.5 rounded-xl shadow transition text-sm flex items-center space-x-2 active:scale-95">
+                        <span>✨ 點我測試「半形一鍵轉全形」</span>
                     </button>
                 </div>
-                <textarea id="output-code" readonly class="w-full h-40 font-mono text-xs p-3 bg-slate-900 text-emerald-400 rounded-lg resize-none focus:outline-none" placeholder="產生的程式碼將顯示在此..."></textarea>
-            </div>
-        </section>
+            </section>
+
+            <!-- 區塊 2: 快速收藏與安裝 -->
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col items-center text-center">
+                <h2 class="font-bold text-base text-slate-800 mb-2 flex items-center space-x-2">
+                    <span class="text-blue-600">Step 2.</span>
+                    <span>滿意效果？一鍵將它新增至我的最愛</span>
+                </h2>
+                <p class="text-xs text-slate-500 mb-6 max-w-lg">點擊下方藍色按鈕，程式碼將自動複製，左上角會顯示精確的 Edge 瀏覽器設定步驟引導：</p>
+
+                <button onclick="smartAddBookmark()" class="w-full max-w-md bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-4 rounded-xl shadow-lg hover:shadow-blue-200 transition text-base flex items-center justify-center space-x-2 cursor-pointer active:scale-98">
+                    <span class="text-xl">📌</span>
+                    <span>一鍵複製並顯示 Edge 加入最愛步驟</span>
+                </button>
+
+                <!-- 切換至進階設定的提示連結 -->
+                <div class="mt-8 pt-4 border-t border-slate-100 w-full text-center">
+                    <span class="text-xs text-slate-400">需要調整轉換規則或新增自訂詞彙？</span>
+                    <button onclick="switchTab('advanced')" class="text-xs text-blue-600 font-bold hover:underline ml-1">
+                        👉 點此進入進階設定
+                    </button>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- ================= 模式二：進階設定模式 (隱藏，點擊切換) ================= -->
+        <div id="mode-advanced" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- 左側區塊：半形符號選取 -->
+            <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col">
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
+                    <h2 class="font-bold text-base text-slate-700">1. 選擇要轉換的半形符號</h2>
+                    <div class="space-x-2 text-xs">
+                        <button onclick="toggleAll(true)" class="text-blue-600 hover:underline">全選</button>
+                        <span class="text-slate-300">|</span>
+                        <button onclick="toggleAll(false)" class="text-slate-600 hover:underline">全不選</button>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-500 mb-3">勾選你想在文字選取時自動轉換的字元：</p>
+                
+                <div id="symbol-list" class="space-y-2 overflow-y-auto max-h-[500px] pr-2 flex-grow">
+                    <!-- 動態載入符號項目 -->
+                </div>
+            </section>
+
+            <!-- 中間區塊：對應全形設定與進階選項 -->
+            <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col">
+                <div class="mb-4 pb-2 border-b border-slate-100">
+                    <h2 class="font-bold text-base text-slate-700">2. 設定對應全形與規則</h2>
+                </div>
+                <p class="text-xs text-slate-500 mb-3">調整右側對應產生的全形文字或目標字元：</p>
+                
+                <div id="mapping-list" class="space-y-3 overflow-y-auto max-h-[420px] pr-2 flex-grow mb-4">
+                    <!-- 動態載入對應輸入框 -->
+                </div>
+
+                <!-- 進階規則 -->
+                <div class="border-t border-slate-100 pt-3 space-y-2">
+                    <label class="flex items-center space-x-2 text-sm cursor-pointer">
+                        <input type="checkbox" id="remove-space" checked class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                        <span class="text-slate-700 text-xs">自動略過並刪除半形空白 (` `)</span>
+                    </label>
+                    <label class="flex items-center space-x-2 text-sm cursor-pointer">
+                        <input type="checkbox" id="convert-ellipsis" checked class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                        <span class="text-slate-700 text-xs">自動將連續三點 (`...`) 轉為中文省略號 (`…`)</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- 右側區塊：產生的程式碼與一鍵安裝 -->
+            <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col">
+                <div class="mb-4 pb-2 border-b border-slate-100 flex justify-between items-center">
+                    <h2 class="font-bold text-base text-slate-700">3. 產生與一鍵收藏</h2>
+                    <span class="text-xs text-emerald-600 font-medium bg-emerald-50 px-2 py-0.5 rounded">即時同步</span>
+                </div>
+                <p class="text-xs text-slate-500 mb-3">點擊下方按鈕，將自動複製自訂後的程式碼：</p>
+
+                <!-- 一鍵安裝引導按鈕 -->
+                <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg text-center">
+                    <button onclick="smartAddBookmark()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-3 rounded-lg shadow transition text-sm flex items-center justify-center space-x-2 cursor-pointer">
+                        <span>✨</span>
+                        <span>一鍵複製並顯示詳細步驟</span>
+                    </button>
+                </div>
+
+                <!-- 程式碼輸出框 -->
+                <div class="flex flex-col flex-grow">
+                    <div class="flex justify-between items-center mb-1">
+                        <label for="output-code" class="text-xs font-semibold text-slate-600">JavaScript 原始碼：</label>
+                        <button onclick="copyCode()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded transition font-medium">
+                            📋 複製程式碼
+                        </button>
+                    </div>
+                    <textarea id="output-code" readonly class="w-full h-40 font-mono text-xs p-3 bg-slate-900 text-emerald-400 rounded-lg resize-none focus:outline-none" placeholder="產生的程式碼將顯示在此..."></textarea>
+                </div>
+            </section>
+
+        </div>
 
     </main>
 
@@ -122,7 +186,6 @@
 
     <!-- JavaScript 邏輯控制 -->
     <script>
-        // 預設常見對應表
         const defaultPairs = [
             { half: ',', full: '，', label: '逗號', enabled: true, isCustom: false },
             { half: '(', full: '（', label: '左圓括號', enabled: true, isCustom: false },
@@ -157,7 +220,6 @@
             { half: '~', full: '～', label: '波浪號', enabled: true, isCustom: false }
         ];
 
-        // 動態新增 10 組自訂欄位（預設不勾選）
         for (let i = 1; i <= 10; i++) {
             defaultPairs.push({
                 half: '',
@@ -167,6 +229,69 @@
                 isCustom: true,
                 customIndex: i
             });
+        }
+
+        const defaultDemoText = "主旨:請貴公司於115年10月29日前(含當日),依規定辦理說明事項...【車號:ABC-1234】;備註:如有疑問,請來電洽詢!";
+
+        // 頁籤切換邏輯
+        function switchTab(tab) {
+            const modeSimple = document.getElementById('mode-simple');
+            const modeAdvanced = document.getElementById('mode-advanced');
+            const btnSimple = document.getElementById('tab-btn-simple');
+            const btnAdvanced = document.getElementById('tab-btn-advanced');
+
+            if (tab === 'simple') {
+                modeSimple.classList.remove('hidden');
+                modeAdvanced.classList.add('hidden');
+                btnSimple.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 bg-blue-600 text-white shadow";
+                btnAdvanced.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 text-blue-300 hover:text-white";
+            } else {
+                modeSimple.classList.add('hidden');
+                modeAdvanced.classList.remove('hidden');
+                btnAdvanced.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 bg-blue-600 text-white shadow";
+                btnSimple.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 text-blue-300 hover:text-white";
+            }
+        }
+
+        // 測試文字一鍵轉換
+        function testConvertDemo() {
+            const textarea = document.getElementById('demo-textarea');
+            let text = textarea.value;
+
+            // 建立目前的轉譯 Map
+            const mapObj = {};
+            defaultPairs.forEach(item => {
+                if (item.enabled && item.half !== '') {
+                    mapObj[item.half] = item.full;
+                }
+            });
+
+            // 處理省略號
+            if (document.getElementById('convert-ellipsis').checked) {
+                text = text.replace(/\.\.\./g, '…');
+            }
+
+            // 轉譯字元
+            let result = '';
+            const removeSpace = document.getElementById('remove-space').checked;
+
+            for (let i = 0; i < text.length; i++) {
+                const ch = text.charAt(i);
+                if (removeSpace && ch === ' ') {
+                    continue;
+                }
+                if (mapObj[ch] !== undefined) {
+                    result += mapObj[ch];
+                } else {
+                    result += ch;
+                }
+            }
+
+            textarea.value = result;
+        }
+
+        function resetDemoText() {
+            document.getElementById('demo-textarea').value = defaultDemoText;
         }
 
         function initUI() {
@@ -179,7 +304,6 @@
             let addedCustomHeader = false;
 
             defaultPairs.forEach((item, index) => {
-                // 如果是第一個自訂組別，插入分隔標頭
                 if (item.isCustom && !addedCustomHeader) {
                     addedCustomHeader = true;
                     
@@ -194,7 +318,6 @@
                     mappingListContainer.appendChild(headerMid);
                 }
 
-                // 左側：選取與輸入欄位
                 const divLeft = document.createElement('label');
                 divLeft.className = `flex items-center justify-between text-sm p-1.5 hover:bg-slate-50 rounded cursor-pointer ${item.isCustom ? 'bg-amber-50/50' : ''}`;
                 
@@ -217,7 +340,6 @@
                 }
                 symbolListContainer.appendChild(divLeft);
 
-                // 中間：全形/目標輸入欄位
                 const divMid = document.createElement('div');
                 divMid.className = `flex items-center space-x-2 text-sm transition-opacity ${item.enabled ? 'opacity-100' : 'opacity-40 pointer-events-none'} ${item.isCustom ? 'bg-amber-50/50 p-1 rounded' : ''}`;
                 divMid.id = `map-row-${index}`;
@@ -274,7 +396,6 @@
 
         function toggleAll(status) {
             defaultPairs.forEach((item, index) => {
-                // 如果是自訂組別，全選/全不選時只對已有輸入內容的項目作用，或全部設定狀態
                 item.enabled = status;
                 document.getElementById(`chk-${index}`).checked = status;
                 const row = document.getElementById(`map-row-${index}`);
