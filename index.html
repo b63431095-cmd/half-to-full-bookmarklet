@@ -454,14 +454,19 @@
         }
 
         function smartAddBookmark() {
-            const textarea = document.getElementById('output-code');
-            textarea.select();
-            document.execCommand('copy');
+    // 1. 強制即時重新產生最新的 Bookmarklet JS 程式碼
+    generateBookmarklet();
 
-            const toast = document.getElementById('guidance-toast');
-            toast.classList.remove('-translate-x-full', 'opacity-0', 'pointer-events-none');
-            toast.classList.add('translate-x-0', 'opacity-100', 'pointer-events-auto');
-        }
+    // 2. 選取並複製產生的程式碼
+    const textarea = document.getElementById('output-code');
+    textarea.select();
+    document.execCommand('copy');
+
+    // 3. 顯示左上角的步驟導引提示卡片
+    const toast = document.getElementById('guidance-toast');
+    toast.classList.remove('-translate-x-full', 'opacity-0', 'pointer-events-none');
+    toast.classList.add('translate-x-0', 'opacity-100', 'pointer-events-auto');
+}
 
         function hideGuidanceToast() {
             const toast = document.getElementById('guidance-toast');
@@ -472,7 +477,10 @@
         document.getElementById('remove-space').addEventListener('change', generateBookmarklet);
         document.getElementById('convert-ellipsis').addEventListener('change', generateBookmarklet);
 
-        window.onload = initUI;
+        window.onload = function() {
+    initUI();               // 初始化介面與預設選單
+    generateBookmarklet();  // 預先產生第一版預設程式碼
+};
     </script>
 </body>
 </html>
