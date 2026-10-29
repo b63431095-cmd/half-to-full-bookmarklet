@@ -30,9 +30,9 @@
                     <button onclick="toggleAll(false)" class="text-slate-600 hover:underline">全不選</button>
                 </div>
             </div>
-            <p class="text-xs text-slate-500 mb-3">勾選你想在文字選取時自動轉換的半形字元：</p>
+            <p class="text-xs text-slate-500 mb-3">勾選你想在文字選取時自動轉換的字元或符號：</p>
             
-            <div id="symbol-list" class="space-y-2 overflow-y-auto max-h-[500px] pr-2 flex-grow">
+            <div id="symbol-list" class="space-y-2 overflow-y-auto max-h-[520px] pr-2 flex-grow">
                 <!-- 動態載入符號項目 -->
             </div>
         </section>
@@ -42,9 +42,9 @@
             <div class="mb-4 pb-2 border-b border-slate-100">
                 <h2 class="font-bold text-lg text-slate-700">2. 設定對應全形與規則</h2>
             </div>
-            <p class="text-xs text-slate-500 mb-3">調整右側對應產生的全形文字字元：</p>
+            <p class="text-xs text-slate-500 mb-3">調整右側對應產生的全形文字或目標字元：</p>
             
-            <div id="mapping-list" class="space-y-3 overflow-y-auto max-h-[420px] pr-2 flex-grow mb-4">
+            <div id="mapping-list" class="space-y-3 overflow-y-auto max-h-[440px] pr-2 flex-grow mb-4">
                 <!-- 動態載入對應輸入框 -->
             </div>
 
@@ -61,35 +61,59 @@
             </div>
         </section>
 
-<!-- 右側區塊：產生的程式碼與一鍵安裝 -->
-<section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col">
-    <div class="mb-4 pb-2 border-b border-slate-100 flex justify-between items-center">
-        <h2 class="font-bold text-lg text-slate-700">3. 產生與一鍵收藏</h2>
-        <span class="text-xs text-emerald-600 font-medium bg-emerald-50 px-2 py-0.5 rounded">即時同步</span>
-    </div>
-    <p class="text-xs text-slate-500 mb-3">點擊下方按鈕，將自動複製程式碼並教你快速加入我的最愛：</p>
+        <!-- 右側區塊：產生的程式碼與一鍵安裝 -->
+        <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col">
+            <div class="mb-4 pb-2 border-b border-slate-100 flex justify-between items-center">
+                <h2 class="font-bold text-lg text-slate-700">3. 產生與一鍵收藏</h2>
+                <span class="text-xs text-emerald-600 font-medium bg-emerald-50 px-2 py-0.5 rounded">即時同步</span>
+            </div>
+            <p class="text-xs text-slate-500 mb-3">點擊下方按鈕，將自動複製程式碼並顯示詳細設定步驟：</p>
 
-    <!-- 一鍵安裝引導按鈕 -->
-    <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg text-center">
-        <button onclick="smartAddBookmark()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-3 rounded-lg shadow transition text-sm flex items-center justify-center space-x-2 cursor-pointer">
-            <span>✨</span>
-            <span>一鍵複製並顯示新增教學</span>
-        </button>
-        <p class="text-[11px] text-blue-600 mt-2">點擊後會自動複製程式碼，並彈出簡單步驟指引</p>
-    </div>
+            <!-- 一鍵安裝引導按鈕 -->
+            <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg text-center">
+                <button onclick="smartAddBookmark()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-3 rounded-lg shadow transition text-sm flex items-center justify-center space-x-2 cursor-pointer">
+                    <span>✨</span>
+                    <span>一鍵複製並顯示詳細步驟</span>
+                </button>
+                <p class="text-[11px] text-blue-600 mt-2">點擊後自動複製程式碼，左上角將跳出操作指引</p>
+            </div>
 
-    <!-- 程式碼輸出框 -->
-    <div class="flex flex-col flex-grow">
-        <div class="flex justify-between items-center mb-1">
-            <label for="output-code" class="text-xs font-semibold text-slate-600">JavaScript 原始碼：</label>
-            <button onclick="copyCode()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded transition font-medium">
-                📋 複製程式碼
+            <!-- 程式碼輸出框 -->
+            <div class="flex flex-col flex-grow">
+                <div class="flex justify-between items-center mb-1">
+                    <label for="output-code" class="text-xs font-semibold text-slate-600">JavaScript 原始碼：</label>
+                    <button onclick="copyCode()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded transition font-medium">
+                        📋 複製程式碼
+                    </button>
+                </div>
+                <textarea id="output-code" readonly class="w-full h-40 font-mono text-xs p-3 bg-slate-900 text-emerald-400 rounded-lg resize-none focus:outline-none" placeholder="產生的程式碼將顯示在此..."></textarea>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 左上角浮動導引提示卡片 -->
+    <div id="guidance-toast" class="fixed top-6 left-6 z-50 w-[420px] bg-white border-2 border-blue-500 rounded-xl shadow-2xl p-5 transform -translate-x-full opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="flex justify-between items-start mb-3 border-b border-slate-100 pb-2">
+            <div class="flex items-center space-x-2">
+                <span class="text-xl">📌</span>
+                <h3 class="font-bold text-slate-800 text-sm">已成功複製程式碼！設定步驟如下：</h3>
+            </div>
+            <button onclick="hideGuidanceToast()" class="text-slate-400 hover:text-slate-600 text-sm font-bold px-1.5 py-0.5 rounded">✕</button>
+        </div>
+        <ol class="text-xs text-slate-700 space-y-2.5 pl-4 list-decimal leading-relaxed">
+            <li>請在 Edge 瀏覽器鍵盤按下快捷鍵 <kbd class="bg-slate-100 text-blue-600 px-1 py-0.5 rounded font-mono font-bold border border-slate-200">Ctrl + D</kbd>。</li>
+            <li>彈出編輯我的最愛視窗，點擊 <span class="font-semibold text-slate-900 bg-slate-100 px-1 py-0.5 rounded">"更多"</span> 按鈕。</li>
+            <li>將 URL 欄位清空，在 URL 欄位按下快捷鍵 <kbd class="bg-slate-100 text-blue-600 px-1 py-0.5 rounded font-mono font-bold border border-slate-200">Ctrl + V</kbd> 貼上 JS 程式碼。</li>
+            <li>按下 <span class="font-semibold text-slate-900 bg-slate-100 px-1 py-0.5 rounded">"儲存"</span> 按鈕。</li>
+            <li>後續在公文系統，只要選取範圍（藍底），點選我的最愛 👉 <span class="font-semibold text-blue-700">半形轉全形小幫手</span>，即可一次把半形轉成全形！</li>
+        </ol>
+        <div class="mt-4 pt-2 border-t border-slate-100 text-right">
+            <button onclick="hideGuidanceToast()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-4 py-1.5 rounded font-medium transition">
+                我知道了
             </button>
         </div>
-        <textarea id="output-code" readonly class="w-full h-40 font-mono text-xs p-3 bg-slate-900 text-emerald-400 rounded-lg resize-none focus:outline-none" placeholder="產生的程式碼將顯示在此..."></textarea>
     </div>
-</section>
-    </main>
 
     <!-- 頁尾 -->
     <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200 mt-auto">
@@ -98,42 +122,53 @@
 
     <!-- JavaScript 邏輯控制 -->
     <script>
-        // 預設的符號對應對照表
+        // 預設常見對應表
         const defaultPairs = [
-            { half: ',', full: '，', label: '逗號', enabled: true },
-            { half: '(', full: '（', label: '左圓括號', enabled: true },
-            { half: ')', full: '）', label: '右圓括號', enabled: true },
-            { half: '（', full: '（', label: '全形左括號相容', enabled: true },
-            { half: '）', full: '）', label: '全形右括號相容', enabled: true },
-            { half: ':', full: '：', label: '冒號', enabled: true },
-            { half: ';', full: '；', label: '分號', enabled: true },
-            { half: '?', full: '？', label: '問號', enabled: true },
-            { half: '!', full: '！', label: '驚嘆號', enabled: true },
-            { half: '-', full: '－', label: '連字號 / 負號', enabled: true },
-            { half: '_', full: '＿', label: '底線', enabled: true },
-            { half: '[', full: '【', label: '左方括號', enabled: true },
-            { half: ']', full: '】', label: '右方括號', enabled: true },
-            { half: '{', full: '｛', label: '左大括號', enabled: true },
-            { half: '}', full: '｝', label: '右大括號', enabled: true },
-            { half: '<', full: '＜', label: '小於號', enabled: true },
-            { half: '>', full: '＞', label: '大於號', enabled: true },
-            { half: '/', full: '／', label: '斜線', enabled: true },
-            { half: '\\', full: '＼', label: '反斜線', enabled: true },
-            { half: '*', full: '＊', label: '星號', enabled: true },
-            { half: '+', full: '＋', label: '加號', enabled: true },
-            { half: '=', full: '＝', label: '等號', enabled: true },
-            { half: '&', full: '＆', label: '安培號 (&)', enabled: true },
-            { half: '%', full: '％', label: '百分比', enabled: true },
-            { half: '$', full: '＄', label: '錢號 ($)', enabled: true },
-            { half: '#', full: '＃', label: '井號 (#)', enabled: true },
-            { half: '@', full: '＠', label: '小老鼠 (@)', enabled: true },
-            { half: '^', full: '＾', label: 'Caret (^)', enabled: true },
-            { half: '"', full: '「', label: '雙引號', enabled: true },
-            { half: "'", full: '『', label: '單引號', enabled: true },
-            { half: '~', full: '～', label: '波浪號', enabled: true }
+            { half: ',', full: '，', label: '逗號', enabled: true, isCustom: false },
+            { half: '(', full: '（', label: '左圓括號', enabled: true, isCustom: false },
+            { half: ')', full: '）', label: '右圓括號', enabled: true, isCustom: false },
+            { half: '（', full: '（', label: '全形左括號相容', enabled: true, isCustom: false },
+            { half: '）', full: '）', label: '全形右括號相容', enabled: true, isCustom: false },
+            { half: ':', full: '：', label: '冒號', enabled: true, isCustom: false },
+            { half: ';', full: '；', label: '分號', enabled: true, isCustom: false },
+            { half: '?', full: '？', label: '問號', enabled: true, isCustom: false },
+            { half: '!', full: '！', label: '驚嘆號', enabled: true, isCustom: false },
+            { half: '-', full: '－', label: '連字號 / 負號', enabled: true, isCustom: false },
+            { half: '_', full: '＿', label: '底線', enabled: true, isCustom: false },
+            { half: '[', full: '【', label: '左方括號', enabled: true, isCustom: false },
+            { half: ']', full: '】', label: '右方括號', enabled: true, isCustom: false },
+            { half: '{', full: '｛', label: '左大括號', enabled: true, isCustom: false },
+            { half: '}', full: '｝', label: '右大括號', enabled: true, isCustom: false },
+            { half: '<', full: '＜', label: '小於號', enabled: true, isCustom: false },
+            { half: '>', full: '＞', label: '大於號', enabled: true, isCustom: false },
+            { half: '/', full: '／', label: '斜線', enabled: true, isCustom: false },
+            { half: '\\', full: '＼', label: '反斜線', enabled: true, isCustom: false },
+            { half: '*', full: '＊', label: '星號', enabled: true, isCustom: false },
+            { half: '+', full: '＋', label: '加號', enabled: true, isCustom: false },
+            { half: '=', full: '＝', label: '等號', enabled: true, isCustom: false },
+            { half: '&', full: '＆', label: '安培號 (&)', enabled: true, isCustom: false },
+            { half: '%', full: '％', label: '百分比', enabled: true, isCustom: false },
+            { half: '$', full: '＄', label: '錢號 ($)', enabled: true, isCustom: false },
+            { half: '#', full: '＃', label: '井號 (#)', enabled: true, isCustom: false },
+            { half: '@', full: '＠', label: '小老鼠 (@)', enabled: true, isCustom: false },
+            { half: '^', full: '＾', label: 'Caret (^)', enabled: true, isCustom: false },
+            { half: '"', full: '「', label: '雙引號', enabled: true, isCustom: false },
+            { half: "'", full: '『', label: '單引號', enabled: true, isCustom: false },
+            { half: '~', full: '～', label: '波浪號', enabled: true, isCustom: false }
         ];
 
-        // 初始化介面
+        // 動態新增 10 組自訂欄位（預設不勾選）
+        for (let i = 1; i <= 10; i++) {
+            defaultPairs.push({
+                half: '',
+                full: '',
+                label: `自訂組別 ${i}`,
+                enabled: false,
+                isCustom: true,
+                customIndex: i
+            });
+        }
+
         function initUI() {
             const symbolListContainer = document.getElementById('symbol-list');
             const mappingListContainer = document.getElementById('mapping-list');
@@ -141,29 +176,67 @@
             symbolListContainer.innerHTML = '';
             mappingListContainer.innerHTML = '';
 
+            let addedCustomHeader = false;
+
             defaultPairs.forEach((item, index) => {
-                // 左側：勾選清單
+                // 如果是第一個自訂組別，插入分隔標頭
+                if (item.isCustom && !addedCustomHeader) {
+                    addedCustomHeader = true;
+                    
+                    const headerLeft = document.createElement('div');
+                    headerLeft.className = 'pt-3 pb-1 text-xs font-bold text-blue-800 border-t border-slate-200 mt-2 flex items-center justify-between';
+                    headerLeft.innerHTML = `<span>✏️ 自訂對應符號/字元 (共 10 組)</span>`;
+                    symbolListContainer.appendChild(headerLeft);
+
+                    const headerMid = document.createElement('div');
+                    headerMid.className = 'pt-3 pb-1 text-xs font-bold text-blue-800 border-t border-slate-200 mt-2 flex items-center justify-between';
+                    headerMid.innerHTML = `<span>✏️ 自訂全形/目標轉換設定</span>`;
+                    mappingListContainer.appendChild(headerMid);
+                }
+
+                // 左側：選取與輸入欄位
                 const divLeft = document.createElement('label');
-                divLeft.className = 'flex items-center justify-between text-sm p-1.5 hover:bg-slate-50 rounded cursor-pointer';
-                divLeft.innerHTML = `
-                    <div class="flex items-center space-x-2">
-                        <input type="checkbox" id="chk-${index}" ${item.enabled ? 'checked' : ''} onchange="updateState(${index}, this.checked)" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
-                        <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-xs font-semibold text-slate-700">${escapeHtml(item.half)}</span>
-                        <span class="text-slate-600 text-xs">${item.label}</span>
-                    </div>
-                `;
+                divLeft.className = `flex items-center justify-between text-sm p-1.5 hover:bg-slate-50 rounded cursor-pointer ${item.isCustom ? 'bg-amber-50/50' : ''}`;
+                
+                if (item.isCustom) {
+                    divLeft.innerHTML = `
+                        <div class="flex items-center space-x-2 w-full">
+                            <input type="checkbox" id="chk-${index}" ${item.enabled ? 'checked' : ''} onchange="updateState(${index}, this.checked)" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                            <input type="text" id="half-input-${index}" value="${item.half}" placeholder="輸入轉換前" oninput="updateCustomHalfChar(${index}, this.value)" class="w-24 border border-slate-300 rounded px-2 py-0.5 text-xs font-mono focus:outline-none focus:border-blue-500">
+                            <span class="text-slate-400 text-xs">(${item.label})</span>
+                        </div>
+                    `;
+                } else {
+                    divLeft.innerHTML = `
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="chk-${index}" ${item.enabled ? 'checked' : ''} onchange="updateState(${index}, this.checked)" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                            <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-xs font-semibold text-slate-700">${escapeHtml(item.half)}</span>
+                            <span class="text-slate-600 text-xs">${item.label}</span>
+                        </div>
+                    `;
+                }
                 symbolListContainer.appendChild(divLeft);
 
-                // 中間：全形對應輸入
+                // 中間：全形/目標輸入欄位
                 const divMid = document.createElement('div');
-                divMid.className = `flex items-center space-x-2 text-sm transition-opacity ${item.enabled ? 'opacity-100' : 'opacity-40 pointer-events-none'}`;
+                divMid.className = `flex items-center space-x-2 text-sm transition-opacity ${item.enabled ? 'opacity-100' : 'opacity-40 pointer-events-none'} ${item.isCustom ? 'bg-amber-50/50 p-1 rounded' : ''}`;
                 divMid.id = `map-row-${index}`;
-                divMid.innerHTML = `
-                    <span class="font-mono w-6 text-center text-slate-500">${escapeHtml(item.half)}</span>
-                    <span class="text-slate-400">➔</span>
-                    <input type="text" id="val-${index}" value="${item.full}" oninput="updateFullChar(${index}, this.value)" maxlength="3" class="w-16 text-center font-mono border border-slate-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-blue-500">
-                    <span class="text-xs text-slate-400">${item.label}</span>
-                `;
+                
+                if (item.isCustom) {
+                    divMid.innerHTML = `
+                        <span id="label-left-${index}" class="font-mono w-16 text-center text-slate-600 text-xs truncate">${item.half || '自訂'}</span>
+                        <span class="text-slate-400">➔</span>
+                        <input type="text" id="val-${index}" value="${item.full}" placeholder="轉換後" oninput="updateFullChar(${index}, this.value)" class="w-20 text-center font-mono border border-slate-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-blue-500">
+                        <span class="text-xs text-slate-400">${item.label}</span>
+                    `;
+                } else {
+                    divMid.innerHTML = `
+                        <span class="font-mono w-6 text-center text-slate-500">${escapeHtml(item.half)}</span>
+                        <span class="text-slate-400">➔</span>
+                        <input type="text" id="val-${index}" value="${item.full}" oninput="updateFullChar(${index}, this.value)" maxlength="5" class="w-16 text-center font-mono border border-slate-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-blue-500">
+                        <span class="text-xs text-slate-400">${item.label}</span>
+                    `;
+                }
                 mappingListContainer.appendChild(divMid);
             });
 
@@ -185,6 +258,15 @@
             generateBookmarklet();
         }
 
+        function updateCustomHalfChar(index, val) {
+            defaultPairs[index].half = val;
+            const labelLeft = document.getElementById(`label-left-${index}`);
+            if (labelLeft) {
+                labelLeft.innerText = val || '自訂';
+            }
+            generateBookmarklet();
+        }
+
         function updateFullChar(index, val) {
             defaultPairs[index].full = val;
             generateBookmarklet();
@@ -192,6 +274,7 @@
 
         function toggleAll(status) {
             defaultPairs.forEach((item, index) => {
+                // 如果是自訂組別，全選/全不選時只對已有輸入內容的項目作用，或全部設定狀態
                 item.enabled = status;
                 document.getElementById(`chk-${index}`).checked = status;
                 const row = document.getElementById(`map-row-${index}`);
@@ -204,15 +287,13 @@
             generateBookmarklet();
         }
 
-        // 核心：動態組裝並壓縮 JavaScript 成為 Bookmarklet
         function generateBookmarklet() {
             const removeSpace = document.getElementById('remove-space').checked;
             const convertEllipsis = document.getElementById('convert-ellipsis').checked;
 
-            // 組合對應表物件
             let mapObjStr = '{';
             defaultPairs.forEach(item => {
-                if (item.enabled) {
+                if (item.enabled && item.half !== '') {
                     mapObjStr += `'${escapeJS(item.half)}':'${escapeJS(item.full)}',`;
                 }
             });
@@ -221,7 +302,6 @@
             }
             mapObjStr += '}';
 
-            // 建立完整的 IIFE 程式碼
             let code = `javascript:(function(){var charMap=${mapObjStr};`;
             code += `function convertSymbols(str){var result='';for(var i=0;i<str.length;i++){var ch=str.charAt(i);`;
             if (removeSpace) {
@@ -236,12 +316,9 @@
             }
             code += `}`;
             
-            // 處理 DOM 互動邏輯（支援 INPUT、TEXTAREA 與頁面一般選取文字）
             code += `var activeEl=document.activeElement;if(activeEl&&(activeEl.tagName==='INPUT'||activeEl.tagName==='TEXTAREA')){var start=activeEl.selectionStart;var end=activeEl.selectionEnd;if(start!==end){var text=activeEl.value;var selectedText=text.substring(start,end);var converted=processText(selectedText);activeEl.value=text.substring(0,start)+converted+text.substring(end);activeEl.setSelectionRange(start,start+converted.length);var event=new Event('input',{bubbles:true});activeEl.dispatchEvent(event);}}else{var sel=window.getSelection();if(sel.rangeCount>0){var range=sel.getRangeAt(0);if(range.startContainer===range.endContainer&&range.startContainer.nodeType===Node.TEXT_NODE){var node=range.startContainer;var nodeText=node.nodeValue;var before=nodeText.substring(0,range.startOffset);var target=nodeText.substring(range.startOffset,range.endOffset);var after=nodeText.substring(range.endOffset);node.nodeValue=before+processText(target)+after;}else{var iterator=document.createNodeIterator(range.commonAncestorContainer,NodeFilter.SHOW_TEXT,function(node){return sel.containsNode(node,true)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT;});var node;while(node=iterator.nextNode()){var nodeText=node.nodeValue;var startIdx=(node===range.startContainer)?range.startOffset:0;var endIdx=(node===range.endContainer)?range.endOffset:nodeText.length;if(startIdx<endIdx){var before=nodeText.substring(0,startIdx);var target=nodeText.substring(startIdx,endIdx);var after=nodeText.substring(endIdx);node.nodeValue=before+processText(target)+after;}}}sel.removeAllRanges();}}})();`;
 
-            // 輸出到介面
             document.getElementById('output-code').value = code;
-            document.getElementById('bookmarklet-btn').setAttribute('href', code);
         }
 
         function escapeJS(str) {
@@ -255,26 +332,26 @@
             alert('已成功複製 Bookmarklet 程式碼！');
         }
 
-        // 監聽進階選項變動
+        function smartAddBookmark() {
+            const textarea = document.getElementById('output-code');
+            textarea.select();
+            document.execCommand('copy');
+
+            const toast = document.getElementById('guidance-toast');
+            toast.classList.remove('-translate-x-full', 'opacity-0', 'pointer-events-none');
+            toast.classList.add('translate-x-0', 'opacity-100', 'pointer-events-auto');
+        }
+
+        function hideGuidanceToast() {
+            const toast = document.getElementById('guidance-toast');
+            toast.classList.remove('translate-x-0', 'opacity-100', 'pointer-events-auto');
+            toast.classList.add('-translate-x-full', 'opacity-0', 'pointer-events-none');
+        }
+
         document.getElementById('remove-space').addEventListener('change', generateBookmarklet);
         document.getElementById('convert-ellipsis').addEventListener('change', generateBookmarklet);
 
-        // 頁面載入時初始化
         window.onload = initUI;
-
-        function smartAddBookmark() {
-    const textarea = document.getElementById('output-code');
-    textarea.select();
-    document.execCommand('copy');
-
-    // 彈出貼心指引說明
-    alert(
-        "✅ 程式碼已成功複製到剪貼簿！\n\n" +
-        "【只需 2 步即可完成我的最愛設定】：\n" +
-        "1. 請在鍵盤按下快捷鍵 【Ctrl + D】（Mac 請按 Cmd + D）將本頁加入我的最愛。\n" +
-        "2. 將該筆最愛的網址（URL）編輯修改，貼上剛剛複製的程式碼並儲存就完成了！"
-    );
-}
     </script>
 </body>
 </html>
