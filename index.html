@@ -346,39 +346,63 @@
             generateBookmarklet();
         }
 
-        function generateBookmarklet() {
+
+function generateBookmarklet() {
             const removeSpace = document.getElementById('remove-space').checked;
             const convertEllipsis = document.getElementById('convert-ellipsis').checked;
 
-            let mapObjStr = '{';
+            // 分別收集「多字元自訂詞彙」與「單一符號」
+            let multiCharMap = {}; // 例如 {"台北市": "臺北市"}
+            let charMap = {};      // 例如 {",": "，"}
+
             defaultPairs.forEach(item => {
                 if (item.enabled && item.half !== '') {
-                    mapObjStr += `'${escapeJS(item.half)}':'${escapeJS(item.full)}',`;
+                    if (item.half.length > 1) {
+                        multiCharMap[item.half] = item.full;
+                    } else {
+                        charMap[item.half] = item.full;
+                    }
                 }
             });
-            if (mapObjStr.endsWith(',')) {
-                mapObjStr = mapObjStr.slice(0, -1);
-            }
-            mapObjStr += '}';
 
-            let code = `javascript:(function(){var charMap=${mapObjStr};`;
-            code += `function convertSymbols(str){var result='';for(var i=0;i<str.length;i++){var ch=str.charAt(i);`;
+            // 將多字元詞彙依「字串長度由長到短排序」，避免短詞優先被截斷（例如先比對「台北市政府」再比對「台北」）
+            let sortedMultiKeys = Object.keys(multiCharMap).sort((a, b) => b.length - a.length);
+
+            // 組裝產生的 Bookmarklet JavaScript 字串
+            let code = `javascript:(function(){`;
+            code += `var multiKeys=${JSON.stringify(sortedMultiKeys)};`;
+            code += `var multiMap=${JSON.stringify(multiCharMap)};`;
+            code += `var charMap=${JSON.stringify(charMap)};`;
+            
+            // 核心轉換函式
+            code += `function processText(text){`;
+            
+            // 1. 處理省略號
+            if (convertEllipsis) {
+                code += `text=text.replace(/\\.\\.\\./g,'…');`;
+            }
+
+            // 2. 優先處理多字元/詞彙替換
+            code += `for(var k=0;k<multiKeys.length;k++){`;
+            code += `var key=multiKeys[k];var val=multiMap[key];`;
+            code += `var regex=new RegExp(key.replace(/[-\\/\\\\^$*+?.()|[\\]{}]/g,'\\\\$&'),'g');`;
+            code += `text=text.replace(regex,val);`;
+            code += `}`;
+
+            // 3. 逐字處理單一符號與空白刪除
+            code += `var result='';for(var i=0;i<text.length;i++){var ch=text.charAt(i);`;
             if (removeSpace) {
                 code += `if(ch===' '){continue;}`;
             }
-            code += `if(charMap[ch]!==undefined){result+=charMap[ch];}else{result+=ch;}}return result;}`;
-            code += `function processText(text){`;
-            if (convertEllipsis) {
-                code += `var newText=text.replace(/\\.\\.\\./g,'…');return convertSymbols(newText);`;
-            } else {
-                code += `return convertSymbols(text);`;
-            }
-            code += `}`;
-            
+            code += `if(charMap[ch]!==undefined){result+=charMap[ch];}else{result+=ch;}}return result;`;
+            code += `}`; // 結束 processText
+
+            // DOM 互動選取與替換邏輯保持不變
             code += `var activeEl=document.activeElement;if(activeEl&&(activeEl.tagName==='INPUT'||activeEl.tagName==='TEXTAREA')){var start=activeEl.selectionStart;var end=activeEl.selectionEnd;if(start!==end){var text=activeEl.value;var selectedText=text.substring(start,end);var converted=processText(selectedText);activeEl.value=text.substring(0,start)+converted+text.substring(end);activeEl.setSelectionRange(start,start+converted.length);var event=new Event('input',{bubbles:true});activeEl.dispatchEvent(event);}}else{var sel=window.getSelection();if(sel.rangeCount>0){var range=sel.getRangeAt(0);if(range.startContainer===range.endContainer&&range.startContainer.nodeType===Node.TEXT_NODE){var node=range.startContainer;var nodeText=node.nodeValue;var before=nodeText.substring(0,range.startOffset);var target=nodeText.substring(range.startOffset,range.endOffset);var after=nodeText.substring(range.endOffset);node.nodeValue=before+processText(target)+after;}else{var iterator=document.createNodeIterator(range.commonAncestorContainer,NodeFilter.SHOW_TEXT,function(node){return sel.containsNode(node,true)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT;});var node;while(node=iterator.nextNode()){var nodeText=node.nodeValue;var startIdx=(node===range.startContainer)?range.startOffset:0;var endIdx=(node===range.endContainer)?range.endOffset:nodeText.length;if(startIdx<endIdx){var before=nodeText.substring(0,startIdx);var target=nodeText.substring(startIdx,endIdx);var after=nodeText.substring(endIdx);node.nodeValue=before+processText(target)+after;}}}sel.removeAllRanges();}}})();`;
 
             document.getElementById('output-code').value = code;
         }
+
 
         function escapeJS(str) {
             return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
