@@ -384,23 +384,57 @@
             return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
         }
 
-        function copyCode() {
-            generateBookmarklet();
-            const textarea = document.getElementById('output-code');
-            textarea.select();
-            document.execCommand('copy');
-            alert('已成功複製 Bookmarklet 程式碼！');
-        }
 
-        function smartAddBookmark() {
-            generateBookmarklet();
-            const textarea = document.getElementById('output-code');
-            textarea.select();
-            document.execCommand('copy');
+// 使用現代且安全的剪貼簿寫入方式，絕對不會複製到網頁 HTML
+function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).catch(err => {
+            fallbackCopyText(text);
+        });
+    } else {
+        fallbackCopyText(text);
+    }
+}
 
-            const toast = document.getElementById('guidance-toast');
-            toast.classList.remove('-translate-x-full', 'opacity-0', 'pointer-events-none');
-            toast.classList.add('translate-x-0', 'opacity-100', 'pointer-events-auto');
+// 備用複製方法（相容舊版環境）
+function fallbackCopyText(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";  // 避免畫面捲動
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+        document.execCommand('copy');
+    } catch (err) {
+        console.error('複製失敗', err);
+    }
+    document.body.removeChild(textArea);
+}
+
+function copyCode() {
+    generateBookmarklet();
+    const code = document.getElementById('output-code').value;
+    copyToClipboard(code);
+    alert('已成功複製 Bookmarklet 程式碼！');
+}
+
+function smartAddBookmark() {
+    // 1. 確保產生最新的 JS 執行碼
+    generateBookmarklet();
+    
+    // 2. 抓取產生的純 JS 程式碼（開頭為 javascript:(function(){...})）
+    const code = document.getElementById('output-code').value;
+    
+    // 3. 乾淨俐落地寫入剪貼簿，絕對不會汙染 HTML
+    copyToClipboard(code);
+
+    // 4. 顯示左上角的步驟導引提示卡片
+    const toast = document.getElementById('guidance-toast');
+    toast.classList.remove('-translate-x-full', 'opacity-0', 'pointer-events-none');
+    toast.classList.add('translate-x-0', 'opacity-100', 'pointer-events-auto');
+}
+
         }
 
         function hideGuidanceToast() {
