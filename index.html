@@ -43,12 +43,12 @@
                     建立你的專屬「半形轉全形」書籤捷徑
                 </h2>
                 <p class="text-xs text-slate-500 mb-8 max-w-md leading-relaxed">
-                    點擊下方按鈕，系統將自動將轉換程式碼複製到剪貼簿，並透過左上角彈出視窗引導你在 Edge 瀏覽器中一鍵建立我的最愛。
+                    點擊下方按鈕，系統將自動將轉換程式碼複製到剪貼簿，並透過左上角彈出視窗引導你在瀏覽器中一鍵建立我的最愛。
                 </p>
 
                 <button onclick="smartAddBookmark()" class="w-full max-w-md bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-4 rounded-xl shadow-lg hover:shadow-blue-200 transition text-base flex items-center justify-center space-x-2 cursor-pointer active:scale-98">
                     <span class="text-xl">✨</span>
-                    <span>一鍵複製並顯示 Edge 加入最愛步驟</span>
+                    <span>一鍵複製並顯示加入最愛步驟</span>
                 </button>
 
                 <!-- 切換至進階設定的提示連結 -->
@@ -86,7 +86,7 @@
                 <div class="mb-4 pb-2 border-b border-slate-100">
                     <h2 class="font-bold text-base text-slate-700">2. 設定對應全形與規則</h2>
                 </div>
-                <p class="text-xs text-slate-500 mb-3">調整右側對應產生的全形文字或目標字元：</p>
+                <p class="text-xs text-slate-500 mb-3">調整右側對應產生的全形文字或目標字元（支援多字元詞彙）：</p>
                 
                 <div id="mapping-list" class="space-y-3 overflow-y-auto max-h-[420px] pr-2 flex-grow mb-4">
                     <!-- 動態載入對應輸入框 -->
@@ -138,26 +138,26 @@
     </main>
 
     <!-- 左上角浮動導引提示卡片 -->
-<div id="guidance-toast" class="fixed top-6 left-6 z-50 w-[440px] bg-white border-2 border-blue-500 rounded-xl shadow-2xl p-5 transform -translate-x-full opacity-0 transition-all duration-300 pointer-events-none">
-    <div class="flex justify-between items-start mb-3 border-b border-slate-100 pb-2">
-        <div class="flex items-center space-x-2">
-            <span class="text-xl">📌</span>
-            <h3 class="font-bold text-slate-800 text-sm" id="toast-title">已成功複製程式碼！設定步驟如下：</h3>
+    <div id="guidance-toast" class="fixed top-6 left-6 z-50 w-[440px] bg-white border-2 border-blue-500 rounded-xl shadow-2xl p-5 transform -translate-x-full opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="flex justify-between items-start mb-3 border-b border-slate-100 pb-2">
+            <div class="flex items-center space-x-2">
+                <span class="text-xl">📌</span>
+                <h3 class="font-bold text-slate-800 text-sm" id="toast-title">已成功複製程式碼！設定步驟如下：</h3>
+            </div>
+            <button onclick="hideGuidanceToast()" class="text-slate-400 hover:text-slate-600 text-sm font-bold px-1.5 py-0.5 rounded">✕</button>
         </div>
-        <button onclick="hideGuidanceToast()" class="text-slate-400 hover:text-slate-600 text-sm font-bold px-1.5 py-0.5 rounded">✕</button>
-    </div>
-    
-    <!-- 動態載入對應瀏覽器的步驟 -->
-    <ol id="browser-guide-steps" class="text-xs text-slate-700 space-y-2.5 pl-4 list-decimal leading-relaxed">
-        <!-- JS 動態填入 -->
-    </ol>
+        
+        <!-- 動態載入對應瀏覽器的步驟 -->
+        <ol id="browser-guide-steps" class="text-xs text-slate-700 space-y-2.5 pl-4 list-decimal leading-relaxed">
+            <!-- JS 動態填入 -->
+        </ol>
 
-    <div class="mt-4 pt-2 border-t border-slate-100 text-right">
-        <button onclick="hideGuidanceToast()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-4 py-1.5 rounded-medium transition">
-            我知道了
-        </button>
+        <div class="mt-4 pt-2 border-t border-slate-100 text-right">
+            <button onclick="hideGuidanceToast()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-4 py-1.5 rounded transition font-medium">
+                我知道了
+            </button>
+        </div>
     </div>
-</div>
 
     <!-- 頁尾 -->
     <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200 mt-auto">
@@ -345,14 +345,12 @@
             generateBookmarklet();
         }
 
-
-function generateBookmarklet() {
+        function generateBookmarklet() {
             const removeSpace = document.getElementById('remove-space').checked;
             const convertEllipsis = document.getElementById('convert-ellipsis').checked;
 
-            // 分別收集「多字元自訂詞彙」與「單一符號」
-            let multiCharMap = {}; // 例如 {"台北市": "臺北市"}
-            let charMap = {};      // 例如 {",": "，"}
+            let multiCharMap = {}; 
+            let charMap = {};      
 
             defaultPairs.forEach(item => {
                 if (item.enabled && item.half !== '') {
@@ -364,50 +362,41 @@ function generateBookmarklet() {
                 }
             });
 
-            // 將多字元詞彙依「字串長度由長到短排序」，避免短詞優先被截斷（例如先比對「台北市政府」再比對「台北」）
             let sortedMultiKeys = Object.keys(multiCharMap).sort((a, b) => b.length - a.length);
 
-            // 組裝產生的 Bookmarklet JavaScript 字串
             let code = `javascript:(function(){`;
             code += `var multiKeys=${JSON.stringify(sortedMultiKeys)};`;
             code += `var multiMap=${JSON.stringify(multiCharMap)};`;
             code += `var charMap=${JSON.stringify(charMap)};`;
             
-            // 核心轉換函式
             code += `function processText(text){`;
             
-            // 1. 處理省略號
             if (convertEllipsis) {
                 code += `text=text.replace(/\\.\\.\\./g,'…');`;
             }
 
-            // 2. 優先處理多字元/詞彙替換
             code += `for(var k=0;k<multiKeys.length;k++){`;
             code += `var key=multiKeys[k];var val=multiMap[key];`;
             code += `var regex=new RegExp(key.replace(/[-\\/\\\\^$*+?.()|[\\]{}]/g,'\\\\$&'),'g');`;
             code += `text=text.replace(regex,val);`;
             code += `}`;
 
-            // 3. 逐字處理單一符號與空白刪除
             code += `var result='';for(var i=0;i<text.length;i++){var ch=text.charAt(i);`;
             if (removeSpace) {
                 code += `if(ch===' '){continue;}`;
             }
             code += `if(charMap[ch]!==undefined){result+=charMap[ch];}else{result+=ch;}}return result;`;
-            code += `}`; // 結束 processText
+            code += `}`; 
 
-            // DOM 互動選取與替換邏輯保持不變
             code += `var activeEl=document.activeElement;if(activeEl&&(activeEl.tagName==='INPUT'||activeEl.tagName==='TEXTAREA')){var start=activeEl.selectionStart;var end=activeEl.selectionEnd;if(start!==end){var text=activeEl.value;var selectedText=text.substring(start,end);var converted=processText(selectedText);activeEl.value=text.substring(0,start)+converted+text.substring(end);activeEl.setSelectionRange(start,start+converted.length);var event=new Event('input',{bubbles:true});activeEl.dispatchEvent(event);}}else{var sel=window.getSelection();if(sel.rangeCount>0){var range=sel.getRangeAt(0);if(range.startContainer===range.endContainer&&range.startContainer.nodeType===Node.TEXT_NODE){var node=range.startContainer;var nodeText=node.nodeValue;var before=nodeText.substring(0,range.startOffset);var target=nodeText.substring(range.startOffset,range.endOffset);var after=nodeText.substring(range.endOffset);node.nodeValue=before+processText(target)+after;}else{var iterator=document.createNodeIterator(range.commonAncestorContainer,NodeFilter.SHOW_TEXT,function(node){return sel.containsNode(node,true)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT;});var node;while(node=iterator.nextNode()){var nodeText=node.nodeValue;var startIdx=(node===range.startContainer)?range.startOffset:0;var endIdx=(node===range.endContainer)?range.endOffset:nodeText.length;if(startIdx<endIdx){var before=nodeText.substring(0,startIdx);var target=nodeText.substring(startIdx,endIdx);var after=nodeText.substring(endIdx);node.nodeValue=before+processText(target)+after;}}}sel.removeAllRanges();}}})();`;
 
             document.getElementById('output-code').value = code;
         }
 
-
         function escapeJS(str) {
             return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
         }
 
-        // 使用現代且安全的剪貼簿寫入方式
         function copyToClipboard(text) {
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(text).catch(err => {
@@ -418,7 +407,6 @@ function generateBookmarklet() {
             }
         }
 
-        // 備用複製方法
         function fallbackCopyText(text) {
             const textArea = document.createElement("textarea");
             textArea.value = text;
@@ -441,10 +429,42 @@ function generateBookmarklet() {
             alert('已成功複製 Bookmarklet 程式碼！');
         }
 
+        // 偵測目前瀏覽器並動態設定步驟文字
+        function updateBrowserGuide() {
+            const ua = navigator.userAgent;
+            const stepsContainer = document.getElementById('browser-guide-steps');
+            const titleEl = document.getElementById('toast-title');
+            
+            let isEdge = ua.indexOf("Edg") > -1;
+
+            if (isEdge) {
+                titleEl.innerText = "已偵測您使用 Edge 瀏覽器，步驟如下：";
+                stepsContainer.innerHTML = `
+                    <li>請在鍵盤按下快捷鍵 <kbd class="bg-slate-100 text-blue-600 px-1 py-0.5 rounded font-mono font-bold border border-slate-200">Ctrl + D</kbd>。</li>
+                    <li>彈出編輯我的最愛視窗，點擊 <span class="font-semibold text-slate-900 bg-slate-100 px-1 py-0.5 rounded">"更多"</span> 按鈕。</li>
+                    <li>將 URL 欄位清空，按下快捷鍵 <kbd class="bg-slate-100 text-blue-600 px-1 py-0.5 rounded font-mono font-bold border border-slate-200">Ctrl + V</kbd> 貼上程式碼。</li>
+                    <li>按下 <span class="font-semibold text-slate-900 bg-slate-100 px-1 py-0.5 rounded">"儲存"</span>。</li>
+                    <li>後續在公文系統選取文字，點選我的最愛 👉 <span class="font-semibold text-blue-700">半形轉全形小幫手</span> 即可！</li>
+                `;
+            } else {
+                titleEl.innerText = "已偵測您使用 Chrome 瀏覽器，步驟如下：";
+                stepsContainer.innerHTML = `
+                    <li>請在鍵盤按下快捷鍵 <kbd class="bg-slate-100 text-blue-600 px-1 py-0.5 rounded font-mono font-bold border border-slate-200">Ctrl + D</kbd>。</li>
+                    <li>在彈出的視窗中，點擊名稱下方的 <span class="font-semibold text-slate-900 bg-slate-100 px-1 py-0.5 rounded">"更多..."</span>。</li>
+                    <li>將網址（URL）欄位清空，按下快捷鍵 <kbd class="bg-slate-100 text-blue-600 px-1 py-0.5 rounded font-mono font-bold border border-slate-200">Ctrl + V</kbd> 貼上程式碼。</li>
+                    <li>按下 <span class="font-semibold text-slate-900 bg-slate-100 px-1 py-0.5 rounded">"儲存"</span>。</li>
+                    <li>後續在公文系統選取文字，點選書籤列 👉 <span class="font-semibold text-blue-700">半形轉全形小幫手</span> 即可！</li>
+                `;
+            }
+        }
+
         function smartAddBookmark() {
             generateBookmarklet();
             const code = document.getElementById('output-code').value;
             copyToClipboard(code);
+
+            // 呼叫瀏覽器偵測並填入對應步驟
+            updateBrowserGuide();
 
             const toast = document.getElementById('guidance-toast');
             toast.classList.remove('-translate-x-full', 'opacity-0', 'pointer-events-none');
@@ -463,41 +483,8 @@ function generateBookmarklet() {
         window.onload = function() {
             initUI();
             generateBookmarklet();
+            updateBrowserGuide(); // 預先偵測一次
         };
-
-// 偵測目前瀏覽器並動態設定步驟文字
-function updateBrowserGuide() {
-    const ua = navigator.userAgent;
-    const stepsContainer = document.getElementById('browser-guide-steps');
-    const titleEl = document.getElementById('toast-title');
-    
-    let isEdge = ua.indexOf("Edg") > -1;
-    let isChrome = ua.indexOf("Chrome") > -1 && !isEdge;
-
-    if (isEdge) {
-        titleEl.innerText = "已偵測您使用 Edge 瀏覽器，步驟如下：";
-        stepsContainer.innerHTML = `
-            <li>請在鍵盤按下快捷鍵 <kbd class="bg-slate-100 text-blue-600 px-1 py-0.5 rounded font-mono font-bold border border-slate-200">Ctrl + D</kbd>。</li>
-            <li>彈出編輯我的最愛視窗，點擊 <span class="font-semibold text-slate-900 bg-slate-100 px-1 py-0.5 rounded">"更多"</span> 按鈕。</li>
-            <li>將 URL 欄位清空，按下快捷鍵 <kbd class="bg-slate-100 text-blue-600 px-1 py-0.5 rounded font-mono font-bold border border-slate-200">Ctrl + V</kbd> 貼上程式碼。</li>
-            <li>按下 <span class="font-semibold text-slate-900 bg-slate-100 px-1 py-0.5 rounded">"儲存"</span>。</li>
-            <li>後續在公文系統選取文字，點選我的最愛 👉 <span class="font-semibold text-blue-700">半形轉全形小幫手</span> 即可！</li>
-        `;
-    } else {
-        // 預設或 Chrome 瀏覽器步驟
-        titleEl.innerText = "已偵測您使用 Chrome 瀏覽器，步驟如下：";
-        stepsContainer.innerHTML = `
-            <li>請在鍵盤按下快捷鍵 <kbd class="bg-slate-100 text-blue-600 px-1 py-0.5 rounded font-mono font-bold border border-slate-200">Ctrl + D</kbd>。</li>
-            <li>在彈出的視窗中，點擊名稱下方的 <span class="font-semibold text-slate-900 bg-slate-100 px-1 py-0.5 rounded">"更多..."</span>。</li>
-            <li>將網址（URL）欄位清空，按下快捷鍵 <kbd class="bg-slate-100 text-blue-600 px-1 py-0.5 rounded font-mono font-bold border border-slate-200">Ctrl + V</kbd> 貼上程式碼。</li>
-            <li>按下 <span class="font-semibold text-slate-900 bg-slate-100 px-1 py-0.5 rounded">"儲存"</span>。</li>
-            <li>後續在公文系統選取文字，點選書籤列 👉 <span class="font-semibold text-blue-700">半形轉全形小幫手</span> 即可！</li>
-        `;
-    }
-}
-
-
-        
     </script>
 </body>
 </html>
