@@ -138,27 +138,26 @@
     </main>
 
     <!-- 左上角浮動導引提示卡片 -->
-    <div id="guidance-toast" class="fixed top-6 left-6 z-50 w-[420px] bg-white border-2 border-blue-500 rounded-xl shadow-2xl p-5 transform -translate-x-full opacity-0 transition-all duration-300 pointer-events-none">
-        <div class="flex justify-between items-start mb-3 border-b border-slate-100 pb-2">
-            <div class="flex items-center space-x-2">
-                <span class="text-xl">📌</span>
-                <h3 class="font-bold text-slate-800 text-sm">已成功複製程式碼！設定步驟如下：</h3>
-            </div>
-            <button onclick="hideGuidanceToast()" class="text-slate-400 hover:text-slate-600 text-sm font-bold px-1.5 py-0.5 rounded">✕</button>
+<div id="guidance-toast" class="fixed top-6 left-6 z-50 w-[440px] bg-white border-2 border-blue-500 rounded-xl shadow-2xl p-5 transform -translate-x-full opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="flex justify-between items-start mb-3 border-b border-slate-100 pb-2">
+        <div class="flex items-center space-x-2">
+            <span class="text-xl">📌</span>
+            <h3 class="font-bold text-slate-800 text-sm" id="toast-title">已成功複製程式碼！設定步驟如下：</h3>
         </div>
-        <ol class="text-xs text-slate-700 space-y-2.5 pl-4 list-decimal leading-relaxed">
-            <li>請在 Edge 瀏覽器鍵盤按下快捷鍵 <kbd class="bg-slate-100 text-blue-600 px-1 py-0.5 rounded font-mono font-bold border border-slate-200">Ctrl + D</kbd>。</li>
-            <li>彈出編輯我的最愛視窗，點擊 <span class="font-semibold text-slate-900 bg-slate-100 px-1 py-0.5 rounded">"更多"</span> 按鈕。</li>
-            <li>將 URL 欄位清空，在 URL 欄位按下快捷鍵 <kbd class="bg-slate-100 text-blue-600 px-1 py-0.5 rounded font-mono font-bold border border-slate-200">Ctrl + V</kbd> 貼上 JS 程式碼。</li>
-            <li>按下 <span class="font-semibold text-slate-900 bg-slate-100 px-1 py-0.5 rounded">"儲存"</span> 按鈕。</li>
-            <li>後續在公文系統，只要選取範圍（藍底），點選我的最愛 👉 <span class="font-semibold text-blue-700">半形轉全形小幫手</span>，即可一次把半形轉成全形！</li>
-        </ol>
-        <div class="mt-4 pt-2 border-t border-slate-100 text-right">
-            <button onclick="hideGuidanceToast()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-4 py-1.5 rounded font-medium transition">
-                我知道了
-            </button>
-        </div>
+        <button onclick="hideGuidanceToast()" class="text-slate-400 hover:text-slate-600 text-sm font-bold px-1.5 py-0.5 rounded">✕</button>
     </div>
+    
+    <!-- 動態載入對應瀏覽器的步驟 -->
+    <ol id="browser-guide-steps" class="text-xs text-slate-700 space-y-2.5 pl-4 list-decimal leading-relaxed">
+        <!-- JS 動態填入 -->
+    </ol>
+
+    <div class="mt-4 pt-2 border-t border-slate-100 text-right">
+        <button onclick="hideGuidanceToast()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-4 py-1.5 rounded-medium transition">
+            我知道了
+        </button>
+    </div>
+</div>
 
     <!-- 頁尾 -->
     <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200 mt-auto">
@@ -465,6 +464,40 @@ function generateBookmarklet() {
             initUI();
             generateBookmarklet();
         };
+
+// 偵測目前瀏覽器並動態設定步驟文字
+function updateBrowserGuide() {
+    const ua = navigator.userAgent;
+    const stepsContainer = document.getElementById('browser-guide-steps');
+    const titleEl = document.getElementById('toast-title');
+    
+    let isEdge = ua.indexOf("Edg") > -1;
+    let isChrome = ua.indexOf("Chrome") > -1 && !isEdge;
+
+    if (isEdge) {
+        titleEl.innerText = "已偵測您使用 Edge 瀏覽器，步驟如下：";
+        stepsContainer.innerHTML = `
+            <li>請在鍵盤按下快捷鍵 <kbd class="bg-slate-100 text-blue-600 px-1 py-0.5 rounded font-mono font-bold border border-slate-200">Ctrl + D</kbd>。</li>
+            <li>彈出編輯我的最愛視窗，點擊 <span class="font-semibold text-slate-900 bg-slate-100 px-1 py-0.5 rounded">"更多"</span> 按鈕。</li>
+            <li>將 URL 欄位清空，按下快捷鍵 <kbd class="bg-slate-100 text-blue-600 px-1 py-0.5 rounded font-mono font-bold border border-slate-200">Ctrl + V</kbd> 貼上程式碼。</li>
+            <li>按下 <span class="font-semibold text-slate-900 bg-slate-100 px-1 py-0.5 rounded">"儲存"</span>。</li>
+            <li>後續在公文系統選取文字，點選我的最愛 👉 <span class="font-semibold text-blue-700">半形轉全形小幫手</span> 即可！</li>
+        `;
+    } else {
+        // 預設或 Chrome 瀏覽器步驟
+        titleEl.innerText = "已偵測您使用 Chrome 瀏覽器，步驟如下：";
+        stepsContainer.innerHTML = `
+            <li>請在鍵盤按下快捷鍵 <kbd class="bg-slate-100 text-blue-600 px-1 py-0.5 rounded font-mono font-bold border border-slate-200">Ctrl + D</kbd>。</li>
+            <li>在彈出的視窗中，點擊名稱下方的 <span class="font-semibold text-slate-900 bg-slate-100 px-1 py-0.5 rounded">"更多..."</span>。</li>
+            <li>將網址（URL）欄位清空，按下快捷鍵 <kbd class="bg-slate-100 text-blue-600 px-1 py-0.5 rounded font-mono font-bold border border-slate-200">Ctrl + V</kbd> 貼上程式碼。</li>
+            <li>按下 <span class="font-semibold text-slate-900 bg-slate-100 px-1 py-0.5 rounded">"儲存"</span>。</li>
+            <li>後續在公文系統選取文字，點選書籤列 👉 <span class="font-semibold text-blue-700">半形轉全形小幫手</span> 即可！</li>
+        `;
+    }
+}
+
+
+        
     </script>
 </body>
 </html>
